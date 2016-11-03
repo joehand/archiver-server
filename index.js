@@ -8,6 +8,7 @@ module.exports = function (archiver, opts) {
   var swarm = Swarm(swarmDefaults({
     utp: opts.utp || true,
     tcp: opts.tcp || true,
+    hash: false,
     stream: function () {
       return archiver.replicate()
     }
@@ -27,6 +28,8 @@ module.exports = function (archiver, opts) {
 
   function serveArchive (key) {
     // random timeout so it doesn't flood DHT
-    setTimeout(swarm.join(archiver.discoveryKey(key)), Math.floor(Math.random() * 30 * 1000))
+    setTimeout(function () {
+      swarm.join(archiver.discoveryKey(key))
+    }, Math.floor(Math.random() * 30 * 1000))
   }
 }
