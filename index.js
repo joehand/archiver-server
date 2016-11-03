@@ -23,10 +23,9 @@ module.exports = function (archiver, opts) {
     swarm.leave(archiver.discoveryKey(key))
   })
 
-  return
+  return swarm
 
   function serveArchive (key) {
-    console.log(`replicating ${key.toString('hex')} over Dat`)
     // random timeout so it doesn't flood DHT
     setTimeout(swarm.join(archiver.discoveryKey(key)), Math.floor(Math.random() * 30 * 1000))
   }
