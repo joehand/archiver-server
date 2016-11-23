@@ -1,7 +1,53 @@
+var path = require('path')
 var Swarm = require('discovery-swarm')
 var swarmDefaults = require('datland-swarm-defaults')
+var hyperdriveHttp = require('hyperdrive-http')
+var hyperdrive = require('hyperdrive')
+var storage = require('random-access-file')
+var lru = require('lru')
 
 module.exports = function (archiver, opts) {
+  if (!opts) opts = {}
+  return {
+    swarm: createSwarm(archiver, opts),
+    httpRequest: hyperdriveHttp(getArchive(archiver, opts))
+  }
+}
+
+function getArchive (archiver, opts) {
+  var drive = hyperdrive(archiver.core._db)
+  var dir = path.join(__dirname, 'dats') //TODO: get this from arhciver
+  var cache = lru(opts.cacheSize || 100)
+  cache.on('evict', function (item) {
+    // TODO: feed.close()
+  })
+
+  return function (dat, cb) {
+    if (!dat.key) return cb('please provide key') // TODO: fix bug?
+    console.log('request', dat)
+    var archive = cache.get(archiver.discoveryKey(new Buffer(dat.key, 'hex')).toString('hex'))
+    if (archive) {
+      console.log('found archive in cache!')
+      return cb(null, archive)
+    }
+    archiver.get(dat.key, function (err, keys, feeds) {
+      if (err || !keys.length) return cb('not found')
+      if (keys.length === 1) return cb('TODO: hypercore feed')
+      var key = keys[0].toString('hex')
+      var contentKey = keys[1].toString('hex')
+      archive = drive.createArchive(key, {
+        file: function () {
+          return storage(path.join(dir, 'data', contentKey.slice(0, 2), contentKey.slice(2) + '.data'))
+        },
+        storage: storage(path.join(dir, 'data', key.slice(0, 2), key.slice(2) + '.data'))
+      })
+      cache.set(archive.discoveryKey.toString('hex'), archive)
+      cb(null, archive)
+    })
+  }
+}
+
+function createSwarm (archiver, opts) {
   if (!archiver) throw new Error('hypercore archiver required')
   if (!opts) opts = {}
 
