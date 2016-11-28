@@ -19,10 +19,10 @@ server.on('request', datServer.httpRequest)
 server.listen(argv.port, function () {
   console.log('Server is listening on port ' + argv.port)
 })
+datServer.swarm.on('listening', function () {
+  console.log('Listening for connections to Dat Swarm')
+})
 
 datServer.swarm.on('connection', function () {
   console.log('new connection on dat')
 })
-
-
-
