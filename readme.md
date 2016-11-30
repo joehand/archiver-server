@@ -31,6 +31,10 @@ opts = {
 }
 ```
 
+### HTTP
+
+Requires hypercore archive ^2.3.0
+
 ## TODO:
 
 * Serve over http with hyperdrive-http
