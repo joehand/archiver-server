@@ -3,6 +3,7 @@ var Swarm = require('discovery-swarm')
 var swarmDefaults = require('datland-swarm-defaults')
 var hyperdriveHttp = require('hyperdrive-http')
 var lru = require('lru')
+var debug = require('debug')('archiver-server')
 
 module.exports = function (archiver, opts) {
   if (!opts) opts = {}
@@ -20,12 +21,10 @@ function getArchive (archiver, opts) {
 
   return function (dat, cb) {
     if (!dat.key) return cb('please provide key') // TODO: fix bug?
-    console.log('request', dat)
+    debug('request' + dat)
     var archive = cache.get(archiver.discoveryKey(new Buffer(dat.key, 'hex')).toString('hex'))
-    if (archive) {
-      console.log('found archive in cache!')
-      return cb(null, archive)
-    }
+    if (archive) return cb(null, archive)
+
     archiver.get(dat.key, function (err, archive) {
       if (err || !archive) return cb('not found')
       cache.set(archive.discoveryKey.toString('hex'), archive)
