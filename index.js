@@ -1,4 +1,3 @@
-var path = require('path')
 var Swarm = require('discovery-swarm')
 var swarmDefaults = require('datland-swarm-defaults')
 var hyperdriveHttp = require('hyperdrive-http')
@@ -10,6 +9,11 @@ module.exports = function (archiver, opts) {
   opts = opts || {}
   opts.swarm = opts.swarm || true
   opts.http = opts.http || true
+
+  // Dat Swarm options
+  opts.datPort = opts.datPort || 3282
+  opts.tcp = opts.tcp || true
+  opts.utp = opts.utp || true
 
   return {
     swarm: opts.swarm ? createSwarm(archiver, opts) : null,
@@ -30,6 +34,7 @@ function getArchive (archiver, opts) {
 
     var archive = cache.get(archiver.discoveryKey(new Buffer(dat.key, 'hex')).toString('hex'))
     if (archive) return cb(null, archive)
+    debug('Getting archive from archiver:', dat.key)
 
     archiver.get(dat.key, function (err, feed, contentFeed) {
       if (err || !feed) return cb('not found')
@@ -51,17 +56,17 @@ function createSwarm (archiver, opts) {
   if (!opts) opts = {}
 
   var swarm = Swarm(swarmDefaults({
-    utp: opts.utp || true,
-    tcp: opts.tcp || true,
+    utp: opts.utp,
+    tcp: opts.tcp,
     hash: false,
     stream: function () {
-      return archiver.replicate()
+      return archiver.replicate() // TODO: can you do {upload, download} here?
     }
   }))
   swarm.once('error', function () {
     swarm.listen(0)
   })
-  swarm.listen(opts.port || 3282)
+  swarm.listen(opts.datPort)
 
   archiver.list().on('data', serveArchive)
   archiver.on('add', serveArchive)
@@ -73,6 +78,7 @@ function createSwarm (archiver, opts) {
 
   function serveArchive (key) {
     // random timeout so it doesn't flood DHT
+    debug(`Serving Archive ${key.toString('hex')} on Dat`)
     setTimeout(function () {
       swarm.join(archiver.discoveryKey(key))
     }, Math.floor(Math.random() * 30 * 1000))
