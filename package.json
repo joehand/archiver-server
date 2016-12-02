@@ -1,16 +1,24 @@
 {
   "name": "archiver-server",
-  "version": "1.0.2",
+  "version": "2.0.0",
   "description": "Serve keys found in a `hypercore-archiver` with `discovery-swarm`.",
   "main": "index.js",
   "scripts": {
+    "start": "DEBUG=archiver-server node cli.js",
     "test": "standard"
   },
   "author": "Joe Hand <joe@hand.email> (https://joeahand.com/)",
   "license": "MIT",
   "dependencies": {
     "datland-swarm-defaults": "^1.0.2",
-    "discovery-swarm": "^4.0.2"
+    "discovery-swarm": "^4.0.2",
+    "hypercore-archiver": "^2.3.0",
+    "hyperdrive": "^7.11.0",
+    "lru": "^3.1.0",
+    "random-access-file": "^1.3.1"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "debug": "^2.3.3",
+    "standard": "^8.6.0"
+  }
 }
