@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 var minimist = require('minimist')
 var http = require('http')
 var Archiver = require('hypercore-archiver')
