@@ -30,11 +30,11 @@ function getArchive (archiver, opts) {
 
   return function (dat, cb) {
     if (!dat.key) return cb('please provide key') // TODO: fix bug?
-    debug('request', JSON.stringify(dat))
+    debug('Archive HTTP request', JSON.stringify(dat))
 
     var archive = cache.get(archiver.discoveryKey(new Buffer(dat.key, 'hex')).toString('hex'))
     if (archive) return cb(null, archive)
-    debug('Getting archive from archiver:', dat.key)
+    debug('Getting archive:', dat.key)
 
     archiver.get(dat.key, function (err, feed, contentFeed) {
       if (err || !feed) return cb('not found')
