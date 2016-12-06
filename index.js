@@ -55,6 +55,7 @@ function createSwarm (archiver, opts) {
   if (!archiver) throw new Error('hypercore archiver required')
   if (!opts) opts = {}
 
+  var timeouts = []
   var swarm = Swarm(swarmDefaults({
     utp: opts.utp,
     tcp: opts.tcp,
@@ -65,6 +66,11 @@ function createSwarm (archiver, opts) {
   }))
   swarm.once('error', function () {
     swarm.listen(0)
+  })
+  swarm.once('close', function () {
+    timeouts.forEach(function (timeout) {
+      clearTimeout(timeout)
+    })
   })
   swarm.listen(opts.datPort)
 
@@ -79,8 +85,8 @@ function createSwarm (archiver, opts) {
   function serveArchive (key) {
     // random timeout so it doesn't flood DHT
     debug(`Serving Archive ${key.toString('hex')} on Dat`)
-    setTimeout(function () {
+    timeouts.push(setTimeout(function () {
       swarm.join(archiver.discoveryKey(key))
-    }, Math.floor(Math.random() * 30 * 1000))
+    }, Math.floor(Math.random() * 30 * 1000)))
   }
 }
