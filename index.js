@@ -37,8 +37,10 @@ function getArchive (archiver, opts) {
     debug('Getting archive:', dat.key)
 
     archiver.get(dat.key, function (err, feed, contentFeed) {
+      debug('got archive', err)
       if (err || !feed) return cb('not found')
       if (!contentFeed) return cb('TODO: hypercore feed, not archive')
+      debug('got archive')
 
       archive = drive.createArchive(dat.key, {
         metadata: feed,
@@ -77,7 +79,12 @@ function createSwarm (archiver, opts) {
   })
   if (!opts.dontShare) swarm.listen(opts.datPort)
 
-  archiver.list().on('data', serveArchive)
+  archiver.list().on('data', function (key) {
+    // random timeout so it doesn't flood DHT
+    timeouts.push(setTimeout(function () {
+      serveArchive(key)
+    }, Math.floor(Math.random() * 30 * 1000)))
+  })
   archiver.on('add', serveArchive)
   archiver.on('remove', function (key) {
     swarm.leave(archiver.discoveryKey(key))
