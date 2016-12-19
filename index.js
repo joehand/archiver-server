@@ -79,6 +79,12 @@ function createSwarm (archiver, opts) {
   })
   if (!opts.dontShare) swarm.listen(opts.datPort)
 
+  archiver.changes(function (err, feed) {
+    if (err) throw err
+    swarm.join(feed.discoveryKey)
+    debug('Changes feed available at: ' + feed.key.toString('hex'))
+  })
+
   archiver.list().on('data', function (key) {
     // random timeout so it doesn't flood DHT
     timeouts.push(setTimeout(function () {
