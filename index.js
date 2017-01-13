@@ -11,7 +11,7 @@ module.exports = function (archiver, opts) {
   opts.http = opts.http || true
 
   // Dat Swarm options
-  opts.datPort = opts.datPort || 3282
+  opts.datPort = opts.datPort || false
   opts.tcp = opts.tcp || true
   opts.utp = opts.utp || true
 
@@ -77,7 +77,10 @@ function createSwarm (archiver, opts) {
       clearTimeout(timeout)
     })
   })
-  if (!opts.dontShare) swarm.listen(opts.datPort)
+  if (!opts.dontShare) {
+    if (opts.datPort) swarm.listen(opts.datPort)
+    else swarm.listen()
+  }
 
   archiver.changes(function (err, feed) {
     if (err) throw err
