@@ -1,6 +1,6 @@
 {
   "name": "archiver-server",
-  "version": "2.1.1",
+  "version": "2.2.0",
   "description": "Serve keys found in a `hypercore-archiver` with `discovery-swarm`.",
   "main": "index.js",
   "scripts": {
