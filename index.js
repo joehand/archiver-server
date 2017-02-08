@@ -89,10 +89,13 @@ function createSwarm (archiver, opts) {
   })
 
   archiver.list().on('data', function (key) {
-    // random timeout so it doesn't flood DHT
-    timeouts.push(setTimeout(function () {
-      serveArchive(key)
-    }, Math.floor(Math.random() * 30 * 1000)))
+    if (!opts.dht) serveArchive(key)
+    else {
+      // random timeout so it doesn't flood DHT
+      timeouts.push(setTimeout(function () {
+        serveArchive(key)
+      }, Math.floor(Math.random() * 30 * 1000)))
+    }
   })
   archiver.on('add', serveArchive)
   archiver.on('remove', function (key) {
