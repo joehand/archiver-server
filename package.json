@@ -22,5 +22,13 @@
   "devDependencies": {
     "debug": "^2.3.3",
     "standard": "^8.6.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joehand/archiver-server.git"
+  },
+  "bugs": {
+    "url": "https://github.com/joehand/archiver-server/issues"
+  },
+  "homepage": "https://github.com/joehand/archiver-server#readme"
 }
